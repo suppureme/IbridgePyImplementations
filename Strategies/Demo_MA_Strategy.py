@@ -206,7 +206,7 @@ def buildMktOrder():
 app = Strategy(sma=10, lma=20, qty=1)
 
 # Connect with TWS
-app.connect(host='localhost', port=7497, clientId=11)
+app.connect(host='localhost', port=7497, clientId=9)
 
 sleep(1)
 

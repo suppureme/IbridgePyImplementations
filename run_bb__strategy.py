@@ -2,7 +2,7 @@ import datetime as dt
 
 from configuration import test_me
 
-fileName = 'Demo_MA_Strategy.py'
+fileName = 'example_show_real_time_prices.py'
 
 accountCode = 'DU228379'  # IB accountCode is needed to retrieve historical data from IB server.
 dataProviderName = 'IB'  # RANDOM, IB, LOCAL_FILE, TD, ROBINHOOD, IBRIDGEPY
