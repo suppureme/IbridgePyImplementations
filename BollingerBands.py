@@ -18,13 +18,14 @@ import numpy as np  # To perform number crunching
 class Strategy(EClient, EWrapper):
 
     # Initialize method to initialize various parameters
-    def __init__(self, sma=10, lma=20, qty=1):
+    def __init__(self, timeperiod, stdevup, stdevdown, qty=1):
         EClient.__init__(self, self)
 
         # Initializing strategy parameters
-        self.sma = sma
-        self.lma = lma
         self.qty = qty
+        self.timeperiod = timeperiod
+        self.stdevup = stdevup
+        self.stdevdown = stdevdown
 
         # Flag to determine the first position
         self.first_position = True
@@ -95,8 +96,8 @@ class Strategy(EClient, EWrapper):
     def computeIndicators(self):
 
         # Compute historical indicators using talib and store it in dataframe
-        self.hist_df['sma'] = ta.MA(self.hist_df[:self.sma], matype=0)
-        self.hist_df['lma'] = ta.MA(self.hist_df[:self.lma], matype=0)
+        self.histdf['bbup'], self.histdf['bbmid'], self.histdf['bblow'] = ta.BBANDS(self.hist_df[:self.timeperiod], timeperiod=self.timeperiod, nbdevup=self.stdevup, nbdevdn=self.stdevdown, matype=0)
+
         print('Computations of indicators completed.')
 
     # User defined function to generate strategy signals
@@ -109,7 +110,8 @@ class Strategy(EClient, EWrapper):
         self.close_prev_short_open_new_long = False
 
         # Generate signals
-        self.hist_df['signal'] = np.where(self.hist_df['sma'] > self.hist_df['lma'], 1, -1)
+        self.hist_df['signal'] = np.where(self.hist_df['C'] > self.hist_df['bbup'], 1, 0)
+        self.hist_df['signal'] = np.where(self.hist_df['C'] > self.hist_df['bblow'], -1, self.hist_df['signal'])
 
         # Fetch last two value values of the signal column
         self.current_signal = self.hist_df['signal'][-1]
@@ -202,7 +204,7 @@ def buildMktOrder():
 # The following code execute only once per run
 
 # Create a Strategy class object
-app = Strategy(sma=10, lma=20, qty=1)
+app = Strategy(timeperiod=20, stdevdown=2, stdevup=2, qty=1)
 
 # Connect with TWS
 app.connect(host='localhost', port=7497, clientId=11)
